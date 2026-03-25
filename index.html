@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>اداره المهام قسم المشتريات</title>
+<title>منظومة إدارة المهام | الجهة الرسمية</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -469,10 +469,10 @@
 <!-- HEADER -->
 <header>
   <div class="header-inner">
-    <div class="header-emblem"></div>
+    <div class="header-emblem">🏛️</div>
     <div class="header-text">
-      <h1>اداره المهام قسم المشتريات</h1>
-      <p></p>
+      <h1>منظومة إدارة المهام</h1>
+      <p>نظام متابعة وإدارة مهام العمل الرسمي</p>
     </div>
     <div class="header-date">
       <div class="date-badge">
@@ -487,17 +487,17 @@
 <nav class="nav-bar">
   <div class="nav-inner">
     <button class="nav-tab active" onclick="switchTab('daily', this)">
-      <span class="tab-icon"></span>
+      <span class="tab-icon">📅</span>
       المهام اليومية
       <span class="count-badge" id="badge-daily">0</span>
     </button>
     <button class="nav-tab" onclick="switchTab('weekly', this)">
-      <span class="tab-icon"></span>
+      <span class="tab-icon">📆</span>
       المهام الأسبوعية
       <span class="count-badge" id="badge-weekly">0</span>
     </button>
     <button class="nav-tab" onclick="switchTab('monthly', this)">
-      <span class="tab-icon"></span>
+      <span class="tab-icon">🗓️</span>
       المهام الشهرية
       <span class="count-badge" id="badge-monthly">0</span>
     </button>
@@ -547,7 +547,7 @@
   <div class="panel" id="panel-weekly">
     <div class="section-header">
       <div class="section-title">
-        <div class="section-icon"></div>
+        <div class="section-icon">📆</div>
         <div class="section-title-text">
           <h2>المهام الأسبوعية</h2>
           <p>مهام وأعمال الأسبوع الجاري المطلوب إنجازها</p>
@@ -583,7 +583,7 @@
   <div class="panel" id="panel-monthly">
     <div class="section-header">
       <div class="section-title">
-        <div class="section-icon"></div>
+        <div class="section-icon">🗓️</div>
         <div class="section-title-text">
           <h2>المهام الشهرية</h2>
           <p>مهام وأعمال الشهر الجاري المطلوب إنجازها</p>
@@ -619,7 +619,7 @@
 
 <!-- FOOTER -->
 <footer>
-  جميع الحقوق محفوظة &copy; <span id="footerYear"></span> &nbsp;|&nbsp; 
+  جميع الحقوق محفوظة &copy; <span id="footerYear"></span> &nbsp;|&nbsp; منظومة إدارة المهام الرسمية
 </footer>
 
 <script>
@@ -632,23 +632,21 @@ let state = {
   monthly: []
 };
 
-// ─── PERSIST via window.storage (persistent across sessions) ───
-async function saveState() {
+// ─── PERSIST via localStorage ───
+function saveState() {
   try {
-    await window.storage.set(STORAGE_KEY, JSON.stringify(state), true); // shared=true → visible to all
-  } catch(e) {
-    // fallback: in-memory only
-  }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) {}
 }
 
-async function loadState() {
+function loadState() {
   try {
-    const result = await window.storage.get(STORAGE_KEY, true);
-    if (result && result.value) {
-      const parsed = JSON.parse(result.value);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
       if (parsed && parsed.daily) state = parsed;
     }
-  } catch(e) { /* first load */ }
+  } catch(e) {}
 }
 
 // ─── DATE ───
@@ -728,7 +726,7 @@ function renderList(type) {
   if (!tasks.length) {
     list.innerHTML = `<div class="empty-state">
       <div class="empty-icon">📋</div>
-      <p>لا توجد مهام </p>
+      <p>لا توجد مهام بعد — أضف مهمتك الأولى أعلاه</p>
     </div>`;
     return;
   }
@@ -765,11 +763,9 @@ function renderAll() {
 }
 
 // ─── INIT ───
-(async () => {
-  updateDate();
-  await loadState();
-  renderAll();
-})();
+updateDate();
+loadState();
+renderAll();
 </script>
 </body>
 </html>
