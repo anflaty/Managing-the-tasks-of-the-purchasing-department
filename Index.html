@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اداره المهام قسم المشتريات</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2044;
+    --navy-light: #163260;
+    --gold: #c9a227;
+    --gold-light: #e8c84a;
+    --gold-pale: #f5e4a3;
+    --cream: #faf7f0;
+    --white: #ffffff;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-400: #94a3b8;
+    --gray-600: #475569;
+    --success: #10b981;
+    --success-light: #d1fae5;
+    --shadow-gold: 0 4px 24px rgba(201,162,39,0.18);
+    --shadow-navy: 0 8px 40px rgba(10,22,40,0.22);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, var(--navy-light) 100%);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,162,39,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0; left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 36px 40px 32px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .header-emblem {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.2rem;
+    box-shadow: 0 4px 20px rgba(201,162,39,0.4), 0 0 0 4px rgba(201,162,39,0.15);
+    flex-shrink: 0;
+    position: relative; z-index: 1;
+  }
+  .header-text { position: relative; z-index: 1; }
+  .header-text h1 {
+    color: var(--white);
+    font-size: 1.9rem;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+  }
+  .header-text p {
+    color: var(--gold-pale);
+    font-size: 0.95rem;
+    font-weight: 400;
+    margin-top: 4px;
+    opacity: 0.85;
+  }
+  .header-date {
+    margin-right: auto;
+    margin-left: 0;
+    text-align: left;
+    position: relative; z-index: 1;
+  }
+  .header-date .date-badge {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(201,162,39,0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 18px;
+    color: var(--gold-pale);
+    font-size: 0.88rem;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .header-date .date-badge span {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold-light);
+  }
+
+  /* ─── NAV TABS ─── */
+  .nav-bar {
+    background: var(--navy-mid);
+    border-bottom: 2px solid rgba(201,162,39,0.2);
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 16px 32px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.25s;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: 0.3px;
+  }
+  .nav-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; right: 0; left: 0;
+    height: 3px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    border-radius: 2px 2px 0 0;
+  }
+  .nav-tab.active, .nav-tab:hover { color: var(--white); }
+  .nav-tab.active::after { transform: scaleX(1); }
+  .nav-tab .tab-icon { font-size: 1.15rem; }
+  .nav-tab .count-badge {
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 20px;
+    padding: 1px 8px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    min-width: 22px;
+    text-align: center;
+  }
+
+  /* ─── MAIN CONTENT ─── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 40px 60px;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  .section-title {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-icon {
+    width: 52px; height: 52px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    box-shadow: var(--shadow-navy);
+    color: var(--gold-light);
+  }
+  .section-title-text h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--navy);
+  }
+  .section-title-text p {
+    font-size: 0.88rem;
+    color: var(--gray-600);
+    margin-top: 2px;
+  }
+  .stats-row {
+    display: flex; gap: 16px;
+  }
+  .stat-chip {
+    background: var(--white);
+    border: 1.5px solid var(--gray-200);
+    border-radius: 40px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gray-600);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .stat-chip.done { border-color: var(--success); color: var(--success); }
+  .stat-chip.total { border-color: var(--navy-light); color: var(--navy); }
+
+  /* ─── ADD TASK FORM ─── */
+  .add-task-form {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--gray-200);
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 12px rgba(10,22,40,0.06);
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+  .form-group { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .form-group label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--gray-600);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .task-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.97rem;
+    color: var(--navy);
+    background: var(--gray-50);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    direction: rtl;
+  }
+  .task-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,162,39,0.12);
+    background: var(--white);
+  }
+  .task-input::placeholder { color: var(--gray-400); }
+  .add-btn {
+    padding: 13px 28px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: var(--gold-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.97rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: var(--shadow-navy);
+    flex-shrink: 0;
+  }
+  .add-btn:hover {
+    background: linear-gradient(135deg, var(--navy-light) 0%, #1e4080 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(10,22,40,0.28);
+  }
+
+  /* ─── TASK LIST ─── */
+  .tasks-list { display: flex; flex-direction: column; gap: 10px; }
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-400);
+  }
+  .empty-state .empty-icon { font-size: 3.5rem; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 1.05rem; font-weight: 500; }
+
+  /* ─── TASK CARD ─── */
+  .task-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--gray-200);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.25s;
+    box-shadow: 0 1px 6px rgba(10,22,40,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .task-card::before {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--gray-200);
+    transition: background 0.3s;
+  }
+  .task-card:hover {
+    border-color: rgba(201,162,39,0.3);
+    box-shadow: var(--shadow-gold);
+    transform: translateY(-1px);
+  }
+  .task-card.completed {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border-color: rgba(16,185,129,0.25);
+  }
+  .task-card.completed::before { background: var(--success); }
+
+  .task-check {
+    width: 26px; height: 26px;
+    border: 2px solid var(--gray-300, #cbd5e1);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: var(--white);
+    transition: all 0.2s;
+    font-size: 0;
+  }
+  .task-check:hover { border-color: var(--gold); background: rgba(201,162,39,0.06); }
+  .task-card.completed .task-check {
+    background: var(--success);
+    border-color: var(--success);
+    font-size: 0.9rem;
+    color: var(--white);
+  }
+  .task-check::after {
+    content: '✓';
+    color: var(--white);
+    font-weight: 900;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .task-card.completed .task-check::after { display: block; }
+
+  .task-content { flex: 1; min-width: 0; }
+  .task-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.4;
+    transition: color 0.2s;
+  }
+  .task-card.completed .task-title {
+    text-decoration: line-through;
+    color: var(--gray-400);
+  }
+  .task-meta {
+    display: flex; align-items: center; gap: 10px; margin-top: 5px;
+  }
+  .task-time {
+    font-size: 0.78rem;
+    color: var(--gray-400);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .completed-badge {
+    background: var(--success-light);
+    color: var(--success);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: none;
+  }
+  .task-card.completed .completed-badge { display: inline-block; }
+
+  .task-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .delete-btn {
+    width: 34px; height: 34px;
+    border: 1.5px solid var(--gray-200);
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    color: var(--gray-400);
+    transition: all 0.2s;
+  }
+  .delete-btn:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: #fef2f2;
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-section {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--gray-200);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 6px rgba(10,22,40,0.04);
+  }
+  .progress-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .progress-label { font-size: 0.88rem; font-weight: 700; color: var(--navy); }
+  .progress-pct { font-size: 1.2rem; font-weight: 900; color: var(--gold); }
+  .progress-bar-bg {
+    background: var(--gray-100);
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--navy) 0%, var(--gold) 100%);
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    min-width: 0;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 22px 40px;
+    font-size: 0.85rem;
+    border-top: 3px solid rgba(201,162,39,0.25);
+  }
+  footer span { color: var(--gold-pale); font-weight: 600; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .header-inner { padding: 24px 20px; gap: 16px; }
+    .header-text h1 { font-size: 1.35rem; }
+    .header-date { display: none; }
+    .nav-inner { padding: 0 8px; overflow-x: auto; }
+    .nav-tab { padding: 14px 18px; font-size: 0.9rem; white-space: nowrap; }
+    main { padding: 24px 16px 48px; }
+    .add-task-form { flex-direction: column; padding: 18px; }
+    .add-btn { width: 100%; justify-content: center; }
+    .section-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .stats-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-emblem"></div>
+    <div class="header-text">
+      <h1>اداره المهام قسم المشتريات</h1>
+      <p></p>
+    </div>
+    <div class="header-date">
+      <div class="date-badge">
+        <span id="currentDate">—</span>
+        <small id="currentDay">—</small>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-bar">
+  <div class="nav-inner">
+    <button class="nav-tab active" onclick="switchTab('daily', this)">
+      <span class="tab-icon"></span>
+      المهام اليومية
+      <span class="count-badge" id="badge-daily">0</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('weekly', this)">
+      <span class="tab-icon"></span>
+      المهام الأسبوعية
+      <span class="count-badge" id="badge-weekly">0</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('monthly', this)">
+      <span class="tab-icon"></span>
+      المهام الشهرية
+      <span class="count-badge" id="badge-monthly">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- DAILY PANEL -->
+  <div class="panel active" id="panel-daily">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon">📅</div>
+        <div class="section-title-text">
+          <h2>المهام اليومية</h2>
+          <p>مهام وأعمال اليوم المطلوب إنجازها</p>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-chip total">إجمالي: <strong id="total-daily">0</strong></div>
+        <div class="stat-chip done">مُنجز: <strong id="done-daily">0</strong></div>
+      </div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-top">
+        <span class="progress-label">نسبة الإنجاز</span>
+        <span class="progress-pct" id="pct-daily">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="bar-daily" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="add-task-form">
+      <div class="form-group">
+        <label>إضافة مهمة يومية جديدة</label>
+        <input type="text" class="task-input" id="input-daily" placeholder="اكتب المهمة هنا..." onkeydown="handleEnter(event,'daily')">
+      </div>
+      <button class="add-btn" onclick="addTask('daily')">
+        <span>＋</span> إضافة مهمة
+      </button>
+    </div>
+    <div class="tasks-list" id="list-daily"></div>
+  </div>
+
+  <!-- WEEKLY PANEL -->
+  <div class="panel" id="panel-weekly">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon"></div>
+        <div class="section-title-text">
+          <h2>المهام الأسبوعية</h2>
+          <p>مهام وأعمال الأسبوع الجاري المطلوب إنجازها</p>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-chip total">إجمالي: <strong id="total-weekly">0</strong></div>
+        <div class="stat-chip done">مُنجز: <strong id="done-weekly">0</strong></div>
+      </div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-top">
+        <span class="progress-label">نسبة الإنجاز</span>
+        <span class="progress-pct" id="pct-weekly">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="bar-weekly" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="add-task-form">
+      <div class="form-group">
+        <label>إضافة مهمة أسبوعية جديدة</label>
+        <input type="text" class="task-input" id="input-weekly" placeholder="اكتب المهمة هنا..." onkeydown="handleEnter(event,'weekly')">
+      </div>
+      <button class="add-btn" onclick="addTask('weekly')">
+        <span>＋</span> إضافة مهمة
+      </button>
+    </div>
+    <div class="tasks-list" id="list-weekly"></div>
+  </div>
+
+  <!-- MONTHLY PANEL -->
+  <div class="panel" id="panel-monthly">
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon"></div>
+        <div class="section-title-text">
+          <h2>المهام الشهرية</h2>
+          <p>مهام وأعمال الشهر الجاري المطلوب إنجازها</p>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-chip total">إجمالي: <strong id="total-monthly">0</strong></div>
+        <div class="stat-chip done">مُنجز: <strong id="done-monthly">0</strong></div>
+      </div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-top">
+        <span class="progress-label">نسبة الإنجاز</span>
+        <span class="progress-pct" id="pct-monthly">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="bar-monthly" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="add-task-form">
+      <div class="form-group">
+        <label>إضافة مهمة شهرية جديدة</label>
+        <input type="text" class="task-input" id="input-monthly" placeholder="اكتب المهمة هنا..." onkeydown="handleEnter(event,'monthly')">
+      </div>
+      <button class="add-btn" onclick="addTask('monthly')">
+        <span>＋</span> إضافة مهمة
+      </button>
+    </div>
+    <div class="tasks-list" id="list-monthly"></div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  جميع الحقوق محفوظة &copy; <span id="footerYear"></span> &nbsp;|&nbsp; 
+</footer>
+
+<script>
+// ─── STATE (shared, persisted in storage) ───
+const STORAGE_KEY = 'official_tasks_v1';
+
+let state = {
+  daily: [],
+  weekly: [],
+  monthly: []
+};
+
+// ─── PERSIST via window.storage (persistent across sessions) ───
+async function saveState() {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(state), true); // shared=true → visible to all
+  } catch(e) {
+    // fallback: in-memory only
+  }
+}
+
+async function loadState() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY, true);
+    if (result && result.value) {
+      const parsed = JSON.parse(result.value);
+      if (parsed && parsed.daily) state = parsed;
+    }
+  } catch(e) { /* first load */ }
+}
+
+// ─── DATE ───
+function updateDate() {
+  const now = new Date();
+  const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  document.getElementById('currentDate').textContent =
+    `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  document.getElementById('currentDay').textContent = days[now.getDay()];
+  document.getElementById('footerYear').textContent = now.getFullYear();
+}
+
+// ─── TAB SWITCHING ───
+function switchTab(type, btn) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + type).classList.add('active');
+}
+
+// ─── ADD TASK ───
+function addTask(type) {
+  const input = document.getElementById('input-' + type);
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+  const task = {
+    id: Date.now(),
+    text,
+    done: false,
+    createdAt: new Date().toLocaleTimeString('ar-SA', {hour:'2-digit', minute:'2-digit'})
+  };
+  state[type].unshift(task);
+  input.value = '';
+  input.focus();
+  saveState();
+  renderList(type);
+}
+
+function handleEnter(e, type) {
+  if (e.key === 'Enter') addTask(type);
+}
+
+// ─── TOGGLE TASK ───
+function toggleTask(type, id) {
+  const task = state[type].find(t => t.id === id);
+  if (task) {
+    task.done = !task.done;
+    if (task.done) task.doneAt = new Date().toLocaleTimeString('ar-SA', {hour:'2-digit', minute:'2-digit'});
+    else delete task.doneAt;
+    saveState();
+    renderList(type);
+  }
+}
+
+// ─── DELETE TASK ───
+function deleteTask(type, id) {
+  state[type] = state[type].filter(t => t.id !== id);
+  saveState();
+  renderList(type);
+}
+
+// ─── RENDER ───
+function renderList(type) {
+  const list = document.getElementById('list-' + type);
+  const tasks = state[type];
+  const done = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('total-' + type).textContent = total;
+  document.getElementById('done-' + type).textContent = done;
+  document.getElementById('pct-' + type).textContent = pct + '%';
+  document.getElementById('bar-' + type).style.width = pct + '%';
+  document.getElementById('badge-' + type).textContent = total;
+
+  if (!tasks.length) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>لا توجد مهام </p>
+    </div>`;
+    return;
+  }
+
+  // Sort: incomplete first, then completed
+  const sorted = [...tasks].sort((a, b) => {
+    if (a.done === b.done) return 0;
+    return a.done ? 1 : -1;
+  });
+
+  list.innerHTML = sorted.map(task => `
+    <div class="task-card ${task.done ? 'completed' : ''}" id="card-${task.id}">
+      <div class="task-check" onclick="toggleTask('${type}', ${task.id})" title="${task.done ? 'إلغاء الإنجاز' : 'تحديد كمُنجز'}"></div>
+      <div class="task-content">
+        <div class="task-title">${escapeHtml(task.text)}</div>
+        <div class="task-meta">
+          <span class="task-time">🕐 ${task.done && task.doneAt ? 'أُنجز الساعة ' + task.doneAt : 'أُضيف ' + task.createdAt}</span>
+          <span class="completed-badge">✅ تم الإنجاز</span>
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="delete-btn" onclick="deleteTask('${type}', ${task.id})" title="حذف">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderAll() {
+  ['daily','weekly','monthly'].forEach(renderList);
+}
+
+// ─── INIT ───
+(async () => {
+  updateDate();
+  await loadState();
+  renderAll();
+})();
+</script>
+</body>
+</html>
