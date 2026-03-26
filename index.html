@@ -471,8 +471,8 @@
   <div class="header-inner">
     <div class="header-emblem">📃</div>
     <div class="header-text">
-      <h1>اداره مهام</h1>
-      <p>قسم المشتريات</p>
+      <h1>منظومة إدارة المهام</h1>
+      <p>نظام متابعة وإدارة مهام العمل الرسمي</p>
     </div>
     <div class="header-date">
       <div class="date-badge">
@@ -514,7 +514,7 @@
         <div class="section-icon"></div>
         <div class="section-title-text">
           <h2>المهام اليومية</h2>
-          <p>مهام وأعمال اليوم </p>
+          <p>مهام وأعمال اليوم المطلوب إنجازها</p>
         </div>
       </div>
       <div class="stats-row">
@@ -533,7 +533,7 @@
     </div>
     <div class="add-task-form">
       <div class="form-group">
-        <label>إضافة مهمة يومية جديدة</label>
+        <label>إضافة مهمة يومية </label>
         <input type="text" class="task-input" id="input-daily" placeholder="اكتب المهمة هنا..." onkeydown="handleEnter(event,'daily')">
       </div>
       <button class="add-btn" onclick="addTask('daily')">
@@ -550,7 +550,7 @@
         <div class="section-icon"></div>
         <div class="section-title-text">
           <h2>المهام الأسبوعية</h2>
-          <p>مهام وأعمال الأسبوع </p>
+          <p>مهام وأعمال الأسبوعيه</p>
         </div>
       </div>
       <div class="stats-row">
@@ -569,7 +569,7 @@
     </div>
     <div class="add-task-form">
       <div class="form-group">
-        <label>إضافة مهمة أسبوعية جديدة</label>
+        <label>إضافة مهمة أسبوعية </label>
         <input type="text" class="task-input" id="input-weekly" placeholder="اكتب المهمة هنا..." onkeydown="handleEnter(event,'weekly')">
       </div>
       <button class="add-btn" onclick="addTask('weekly')">
@@ -586,7 +586,7 @@
         <div class="section-icon"></div>
         <div class="section-title-text">
           <h2>المهام الشهرية</h2>
-          <p>مهام وأعمال الشهر </p>
+          <p>مهام وأعمال الشهر /p>
         </div>
       </div>
       <div class="stats-row">
@@ -619,7 +619,7 @@
 
 <!-- FOOTER -->
 <footer>
- &copy; <span id="footerYear"></span> &nbsp;|&nbsp; اداره مهام قسم المشتريات
+&copy; <span id="footerYear"></span> &nbsp;|&nbsp; اداره مهام قسم المشتريات
 </footer>
 
 <script>
@@ -632,21 +632,32 @@ let state = {
   monthly: []
 };
 
-// ─── PERSIST via localStorage ───
-function saveState() {
+// ─── JSONBIN CONFIG ───
+const BIN_ID = '69c5579cb7ec241ddca77143';
+const API_KEY = '$2a$10$oXyNeWCtbibvVkqdcD4HAeen26vCTlcKDKhDJgX8TWS9xrcu6qwo.';
+const BIN_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+
+async function saveState() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch(e) {}
+    await fetch(BIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': API_KEY
+      },
+      body: JSON.stringify(state)
+    });
+  } catch(e) { console.error('Save failed', e); }
 }
 
-function loadState() {
+async function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.daily) state = parsed;
-    }
-  } catch(e) {}
+    const res = await fetch(BIN_URL + '/latest', {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    const data = await res.json();
+    if (data.record && data.record.daily) state = data.record;
+  } catch(e) { console.error('Load failed', e); }
 }
 
 // ─── DATE ───
@@ -726,7 +737,7 @@ function renderList(type) {
   if (!tasks.length) {
     list.innerHTML = `<div class="empty-state">
       <div class="empty-icon">📋</div>
-      <p>لا توجد مهام بعد</p>
+      <p>لا توجد مهام بعد </p>
     </div>`;
     return;
   }
@@ -764,8 +775,11 @@ function renderAll() {
 
 // ─── INIT ───
 updateDate();
-loadState();
-renderAll();
+(async () => {
+  await loadState();
+  renderAll();
+})();
 </script>
 </body>
 </html>
+
