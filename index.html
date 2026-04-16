@@ -663,6 +663,141 @@
     border-color: #ef4444;
   }
 
+  /* ─── PIN MODAL ─── */
+  .pin-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,22,40,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .pin-modal {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 40px 36px 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 24px 80px rgba(10,22,40,0.35);
+    text-align: center;
+    position: relative;
+    animation: slideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .pin-modal-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 18px;
+    border: 2px solid #fca5a5;
+  }
+  .pin-modal h3 {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .pin-modal p {
+    font-size: 0.87rem;
+    color: var(--gray-600);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  .pin-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .pin-dot-display {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-300);
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .pin-dot-display.filled {
+    background: var(--navy);
+    border-color: var(--navy);
+    transform: scale(1.15);
+  }
+  .pin-dot-display.error {
+    background: #ef4444;
+    border-color: #ef4444;
+    animation: shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60%  { transform: translateX(-5px); }
+    40%,80%  { transform: translateX(5px); }
+  }
+  .pin-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .pin-key {
+    height: 54px;
+    border: 1.5px solid var(--gray-200);
+    background: var(--gray-50);
+    border-radius: var(--radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--navy);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pin-key:hover {
+    background: var(--navy);
+    color: var(--gold-light);
+    border-color: var(--navy);
+    transform: scale(1.04);
+  }
+  .pin-key:active { transform: scale(0.97); }
+  .pin-key.delete-key {
+    font-size: 0.95rem;
+    color: var(--gray-400);
+  }
+  .pin-key.delete-key:hover {
+    background: #fef2f2;
+    color: #ef4444;
+    border-color: #fca5a5;
+  }
+  .pin-cancel-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--gray-600);
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .pin-cancel-btn:hover { background: var(--gray-100); border-color: var(--gray-300); }
+  .pin-error-msg {
+    font-size: 0.82rem;
+    color: #ef4444;
+    font-weight: 700;
+    margin-bottom: 10px;
+    min-height: 20px;
+    transition: opacity 0.2s;
+  }
+
   footer {
     background: var(--navy);
     color: rgba(255,255,255,0.5);
@@ -682,6 +817,7 @@
     .form-row { flex-direction: column; }
     .add-btn { width: 100%; justify-content: center; }
     .section-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .pin-modal { margin: 16px; padding: 32px 24px 28px; }
   }
 </style>
 </head>
@@ -923,14 +1059,108 @@
 const BIN_ID  = '69c5579cb7ec241ddca77143';
 const API_KEY = '$2a$10$oXyNeWCtbibvVkqdcD4HAeen26vCTlcKDKhDJgX8TWS9xrcu6qwo.';
 const BIN_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+const RESET_PIN = '9777';
 
 // ─── STATE ───
-// state.daily / weekly / monthly = tasks that are still active (including completed ones not yet archived)
-// state.archive = tasks that have been explicitly archived via the archive button
 let state   = { daily: [], weekly: [], monthly: [], archive: [] };
 let members = [];
 let archiveFilter = 'all';
 let saveTimeout = null;
+
+// ═══════════════════════════════════════════
+//  PIN MODAL
+// ═══════════════════════════════════════════
+let pinBuffer = '';
+let pinCallback = null;
+
+function openPinModal(onSuccess) {
+  pinBuffer = '';
+  pinCallback = onSuccess;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'pin-overlay';
+  overlay.id = 'pinOverlay';
+  overlay.innerHTML = `
+    <div class="pin-modal">
+      <div class="pin-modal-icon"></div>
+      <h3>تأكيد الهوية</h3>
+      <p>أدخل رمز المرور للمتابعة<br><span style="color:#ef4444;font-weight:700;"> </span></p>
+      <div class="pin-dots" id="pinDots">
+        <div class="pin-dot-display" id="pd0"></div>
+        <div class="pin-dot-display" id="pd1"></div>
+        <div class="pin-dot-display" id="pd2"></div>
+        <div class="pin-dot-display" id="pd3"></div>
+      </div>
+      <div class="pin-error-msg" id="pinErrorMsg"></div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="pinPress('1')">١</button>
+        <button class="pin-key" onclick="pinPress('2')">٢</button>
+        <button class="pin-key" onclick="pinPress('3')">٣</button>
+        <button class="pin-key" onclick="pinPress('4')">٤</button>
+        <button class="pin-key" onclick="pinPress('5')">٥</button>
+        <button class="pin-key" onclick="pinPress('6')">٦</button>
+        <button class="pin-key" onclick="pinPress('7')">٧</button>
+        <button class="pin-key" onclick="pinPress('8')">٨</button>
+        <button class="pin-key" onclick="pinPress('9')">٩</button>
+        <button class="pin-key" style="opacity:0;pointer-events:none;"></button>
+        <button class="pin-key" onclick="pinPress('0')">٠</button>
+        <button class="pin-key delete-key" onclick="pinDelete()">⌫</button>
+      </div>
+      <button class="pin-cancel-btn" onclick="closePinModal()">إلغاء</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 150);
+  }
+}
+
+function pinDelete() {
+  if (!pinBuffer.length) return;
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pinErrorMsg').textContent = '';
+}
+
+function updatePinDots(state = 'normal') {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.className = 'pin-dot-display';
+    if (state === 'error') dot.classList.add('error');
+    else if (i < pinBuffer.length) dot.classList.add('filled');
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === RESET_PIN) {
+    closePinModal();
+    if (pinCallback) pinCallback();
+  } else {
+    updatePinDots('error');
+    document.getElementById('pinErrorMsg').textContent = 'رمز خاطئ، حاول مجدداً';
+    setTimeout(() => {
+      pinBuffer = '';
+      updatePinDots();
+    }, 800);
+  }
+}
+
+function closePinModal() {
+  const overlay = document.getElementById('pinOverlay');
+  if (overlay) overlay.remove();
+  pinBuffer = '';
+  pinCallback = null;
+}
+
+// Close on overlay click
+document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'pinOverlay') closePinModal();
+});
 
 // ═══════════════════════════════════════════
 //  SYNC UI
@@ -971,7 +1201,6 @@ async function loadState() {
     const data = await res.json();
     if (data.record) {
       if (data.record.tasks) {
-        // Ensure all 4 arrays always exist and are real arrays
         state = {
           daily:   Array.isArray(data.record.tasks.daily)   ? data.record.tasks.daily   : [],
           weekly:  Array.isArray(data.record.tasks.weekly)  ? data.record.tasks.weekly  : [],
@@ -979,7 +1208,6 @@ async function loadState() {
           archive: Array.isArray(data.record.tasks.archive) ? data.record.tasks.archive : []
         };
       } else if (Array.isArray(data.record.daily)) {
-        // Legacy format fallback
         state = {
           daily:   Array.isArray(data.record.daily)   ? data.record.daily   : [],
           weekly:  Array.isArray(data.record.weekly)  ? data.record.weekly  : [],
@@ -997,16 +1225,16 @@ async function loadState() {
 }
 
 // ═══════════════════════════════════════════
-//  RESET (emergency clear)
+//  RESET — now PIN protected
 // ═══════════════════════════════════════════
 function confirmReset() {
-  if (confirm('⚠️ هل أنت متأكد؟ سيتم حذف جميع المهام والأعضاء نهائياً من قاعدة البيانات.')) {
+  openPinModal(() => {
     state   = { daily: [], weekly: [], monthly: [], archive: [] };
     members = [];
     saveState();
     renderAll();
     renderMembersPanel();
-  }
+  });
 }
 
 // ═══════════════════════════════════════════
@@ -1048,14 +1276,12 @@ function switchTab(type, btn) {
 }
 
 // ═══════════════════════════════════════════
-//  BADGES — SINGLE SOURCE OF TRUTH
+//  BADGES
 // ═══════════════════════════════════════════
 function updateAllBadges() {
   ['daily', 'weekly', 'monthly'].forEach(type => {
-    // Tab badge = total tasks in that list (active only, not archived)
     document.getElementById('badge-' + type).textContent = state[type].length;
   });
-  // Archive badge = only explicitly archived tasks
   document.getElementById('badge-archive').textContent = state.archive.length;
 }
 
@@ -1067,7 +1293,7 @@ function renderMemberSelects() {
     const sel = document.getElementById('assignee-' + type);
     if (!sel) return;
     const cur = sel.value;
-    sel.innerHTML = '<option value="">— اختر المسؤول عن المهمه—</option>';
+    sel.innerHTML = '<option value="">— اختر المسؤول عن المهمة —</option>';
     members.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m; opt.textContent = m;
@@ -1194,7 +1420,6 @@ function archiveTask(type, id) {
   state[type].splice(idx, 1);
   saveState();
   renderList(type);
-  // Update archive badge immediately
   document.getElementById('badge-archive').textContent = state.archive.length;
 }
 
@@ -1221,24 +1446,20 @@ function deleteArchiveTask(id) {
 }
 
 // ═══════════════════════════════════════════
-//  RENDER LIST  ← THE FIXED FUNCTION
+//  RENDER LIST
 // ═══════════════════════════════════════════
 function renderList(type) {
   const list  = document.getElementById('list-' + type);
-  const tasks = state[type]; // Only tasks in THIS list
-
-  // ✅ FIX: Count only within this specific list
+  const tasks = state[type];
   const total = tasks.length;
   const done  = tasks.filter(t => t.done).length;
   const pct   = total ? Math.round(done / total * 100) : 0;
 
-  // Update stats for THIS tab only
   document.getElementById('total-' + type).textContent = total;
   document.getElementById('done-'  + type).textContent = done;
   document.getElementById('pct-'   + type).textContent = pct + '%';
   document.getElementById('bar-'   + type).style.width = pct + '%';
 
-  // ✅ FIX: Update ALL badges from a single place to avoid double-counting
   updateAllBadges();
 
   if (!tasks.length) {
@@ -1246,7 +1467,6 @@ function renderList(type) {
     return;
   }
 
-  // Sort: incomplete first (by newest), then completed
   const sorted = [...tasks].sort((a, b) => {
     if (a.done === b.done) return b.createdAt - a.createdAt;
     return a.done ? 1 : -1;
@@ -1282,8 +1502,6 @@ function filterArchive(f, btn) {
 
 function renderArchive() {
   const list = document.getElementById('list-archive');
-
-  // Archive panel shows ONLY explicitly archived tasks (not just completed ones)
   let items = [...state.archive];
   if (archiveFilter !== 'all') {
     items = items.filter(t => (t.archivedType || t.type) === archiveFilter);
@@ -1291,7 +1509,7 @@ function renderArchive() {
   items.sort((a, b) => (b.completedAt || b.createdAt || 0) - (a.completedAt || a.createdAt || 0));
 
   document.getElementById('total-archive').textContent = items.length;
-  document.getElementById('badge-archive').textContent = state.archive.length; // always full count
+  document.getElementById('badge-archive').textContent = state.archive.length;
 
   if (!items.length) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><p>لا توجد مهام مؤرشفة بعد</p></div>`;
@@ -1333,7 +1551,6 @@ function escapeHtml(text) {
 function renderAll() {
   ['daily','weekly','monthly'].forEach(renderList);
   renderMemberSelects();
-  // updateAllBadges is called inside renderList, so no need to call again
 }
 
 // ═══════════════════════════════════════════
